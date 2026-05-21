@@ -1,17 +1,3 @@
-/**
- * ExpenseFlow — script.js
- * IT 104L Computer Programming 2 — Final Term Project
- * Personal Expense Tracker System
- *
- * Algorithms implemented:
- *   - Linear Search   : searchExpenses(), linearSearchExpenses()
- *   - Bubble Sort     : bubbleSortExpenses()
- *   - Selection Sort  : selectionSortByDate()
- *
- * Data Persistence : Web Storage API (localStorage)
- * Data Structure   : Arrays (expenses[], categories[], users[])
- */
-
 "use strict";
 
 /* ============================================================

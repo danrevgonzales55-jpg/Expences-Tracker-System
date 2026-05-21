@@ -78,6 +78,15 @@ h4 {
     display: flex !important;
 }
 
+/* Ensure login/signup page always covers the full screen,
+   hiding any sidebar or app content behind it */
+#loginPage {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--bg-base);
+}
+
 .login-bg {
     position: fixed;
     inset: 0;
