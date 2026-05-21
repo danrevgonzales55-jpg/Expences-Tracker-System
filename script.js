@@ -21,8 +21,121 @@ const DEFAULT_CATEGORIES = [
     { id: "cat_health", name: "Health", icon: "💊", color: "#10b981", isDefault: true },
     { id: "cat_ent", name: "Entertainment", icon: "🎬", color: "#f97316", isDefault: true },
     { id: "cat_edu", name: "Education", icon: "📚", color: "#06b6d4", isDefault: true },
+    { id: "cat_house", name: "Housing & Rent", icon: "🏠", color: "#84cc16", isDefault: true },
+    { id: "cat_travel", name: "Travel", icon: "✈️", color: "#14b8a6", isDefault: true },
+    { id: "cat_save", name: "Savings", icon: "🏦", color: "#a78bfa", isDefault: true },
+    { id: "cat_cloth", name: "Clothing", icon: "👗", color: "#f472b6", isDefault: true },
+    { id: "cat_care", name: "Personal Care", icon: "💆", color: "#fb923c", isDefault: true },
+    { id: "cat_pets", name: "Pets", icon: "🐾", color: "#78716c", isDefault: true },
+    { id: "cat_sub", name: "Subscriptions", icon: "📺", color: "#0ea5e9", isDefault: true },
+    { id: "cat_gift", name: "Gifts & Donations", icon: "🎁", color: "#e879f9", isDefault: true },
     { id: "cat_others", name: "Others", icon: "📦", color: "#6b7280", isDefault: true },
 ];
+
+/* ============================================================
+   EMOJI PICKER DATA & LOGIC
+   ============================================================ */
+const EMOJI_CATS = [
+    { label: "😊", name: "Faces", emojis: ["😊", "😂", "🥰", "😍", "🤩", "😎", "🥳", "😅", "😇", "🤔", "😴", "🙃", "🤑", "😤", "🥹", "🫡", "🤗", "😏", "🫠", "🤫"] },
+    { label: "🍔", name: "Food", emojis: ["🍔", "🍕", "🍜", "🍣", "🍱", "🥗", "🍩", "🧁", "☕", "🥤", "🧃", "🍎", "🍇", "🥩", "🥘", "🍝", "🧆", "🥙", "🌮", "🫕"] },
+    { label: "🚗", name: "Transport", emojis: ["🚗", "🚌", "🚂", "✈️", "🚢", "🛵", "🚕", "🏍️", "🚁", "🛺", "🚎", "🛴", "🚲", "⛵", "🚀", "🛻", "🚐", "🏎️", "🛥️", "🚑"] },
+    { label: "🏠", name: "Home", emojis: ["🏠", "🏡", "🏢", "🏗️", "🛋️", "🛏️", "🪑", "🚿", "🛁", "🪴", "🔑", "🪟", "🚪", "🧹", "🪣", "🛒", "🔧", "⚙️", "🪜", "💡"] },
+    { label: "💰", name: "Finance", emojis: ["💰", "💳", "🏦", "💵", "💴", "💶", "💷", "🪙", "📈", "📉", "💹", "🏧", "🤑", "💸", "🧾", "📊", "💼", "🗂️", "📋", "✅"] },
+    { label: "⚽", name: "Activity", emojis: ["⚽", "🎮", "🎬", "🎵", "🏋️", "🎭", "🎨", "🏊", "🎲", "🎯", "🎸", "🎤", "🏃", "🧘", "🎻", "🏆", "🥇", "🎰", "🎳", "🎺"] },
+    { label: "💊", name: "Health", emojis: ["💊", "🏥", "🩺", "🩹", "🧬", "🔬", "🧪", "💉", "🩻", "🫀", "🧠", "🦷", "👁️", "🏃", "🥦", "🥕", "🍏", "🧘", "🛌", "💆"] },
+    { label: "📱", name: "Tech", emojis: ["📱", "💻", "🖥️", "⌨️", "🖨️", "🖱️", "📷", "📹", "📡", "🔋", "💾", "📀", "🎧", "📺", "📠", "☎️", "🔭", "🔬", "🕹️", "⌚"] },
+    { label: "🎓", name: "Education", emojis: ["📚", "📖", "🎓", "✏️", "📝", "🖊️", "📐", "📏", "🗒️", "🗓️", "📌", "📎", "🖇️", "📂", "🗂️", "💡", "🏫", "🎒", "🔭", "🧮"] },
+    { label: "🌿", name: "Nature", emojis: ["🌿", "🌸", "🌊", "⛰️", "🌞", "🌙", "⭐", "🌈", "🐾", "🦁", "🐶", "🐱", "🐧", "🌴", "🍀", "🌺", "🌻", "🦋", "🌍", "❄️"] },
+    { label: "🎁", name: "Special", emojis: ["🎁", "🎉", "🎊", "🎂", "🎈", "❤️", "🔥", "⚡", "💫", "✨", "🎗️", "🔔", "🏅", "🥇", "🌟", "💎", "👑", "🎀", "🪩", "🫶"] },
+];
+
+let emojiActiveTab = 0;
+let emojiSearchMode = false;
+
+function renderEmojiPicker() {
+    const tabBar = document.getElementById("emojiTabBar");
+    const grid = document.getElementById("emojiGrid");
+    if (!tabBar || !grid) return;
+
+    // Render tab bar
+    tabBar.innerHTML = EMOJI_CATS.map((cat, i) =>
+        `<button class="emoji-tab${i === emojiActiveTab ? " active" : ""}" 
+            title="${cat.name}" onclick="switchEmojiTab(${i})">${cat.label}</button>`
+    ).join("");
+
+    // Render grid for active tab
+    renderEmojiGrid(EMOJI_CATS[emojiActiveTab].emojis);
+}
+
+function renderEmojiGrid(emojis) {
+    const grid = document.getElementById("emojiGrid");
+    if (!grid) return;
+    const current = document.getElementById("catIcon").value;
+    grid.innerHTML = emojis.map(e =>
+        `<button class="emoji-btn${e === current ? " selected" : ""}" 
+            onclick="selectEmoji('${e}')" title="${e}">${e}</button>`
+    ).join("");
+}
+
+function switchEmojiTab(idx) {
+    emojiActiveTab = idx;
+    emojiSearchMode = false;
+    document.getElementById("emojiSearch").value = "";
+    const tabs = document.querySelectorAll(".emoji-tab");
+    tabs.forEach((t, i) => t.classList.toggle("active", i === idx));
+    renderEmojiGrid(EMOJI_CATS[idx].emojis);
+}
+
+function filterEmojis(query) {
+    query = query.trim().toLowerCase();
+    if (!query) {
+        emojiSearchMode = false;
+        renderEmojiGrid(EMOJI_CATS[emojiActiveTab].emojis);
+        return;
+    }
+    emojiSearchMode = true;
+    const all = EMOJI_CATS.flatMap(c => c.emojis);
+    // simple filter: show all (can't search by name without a map, so show all on any input)
+    const unique = [...new Set(all)];
+    renderEmojiGrid(unique);
+}
+
+function selectEmoji(emoji) {
+    document.getElementById("catIcon").value = emoji;
+    document.getElementById("emojiDisplayIcon").textContent = emoji;
+    // Update selected state in grid
+    document.querySelectorAll(".emoji-btn").forEach(b => {
+        b.classList.toggle("selected", b.textContent === emoji);
+    });
+    // Close picker after short delay for feedback
+    setTimeout(closeEmojiPicker, 180);
+}
+
+function toggleEmojiPicker() {
+    const panel = document.getElementById("emojiPickerPanel");
+    const chevron = document.getElementById("emojiChevron");
+    if (panel.classList.contains("d-none")) {
+        panel.classList.remove("d-none");
+        chevron.classList.add("rotated");
+        renderEmojiPicker();
+        document.getElementById("emojiSearch").focus();
+    } else {
+        closeEmojiPicker();
+    }
+}
+
+function closeEmojiPicker() {
+    const panel = document.getElementById("emojiPickerPanel");
+    const chevron = document.getElementById("emojiChevron");
+    if (panel) panel.classList.add("d-none");
+    if (chevron) chevron.classList.remove("rotated");
+}
+
+// Close picker when clicking outside
+document.addEventListener("click", function (e) {
+    const wrapper = document.querySelector(".emoji-picker-wrapper");
+    if (wrapper && !wrapper.contains(e.target)) closeEmojiPicker();
+});
 
 /* ============================================================
    SECTION 2 – STORAGE HELPERS
@@ -420,23 +533,7 @@ function linearSearchExpenses(query) {
     return results;
 }
 
-/* ============================================================
-   SECTION 9 – SORTING ALGORITHMS
-   ============================================================
-   1. BUBBLE SORT — used for amount-based sorting
-      Steps:
-        - Compare adjacent elements
-        - Swap if out of order
-        - Repeat until no swaps occur
-      Complexity: O(n²) average case
 
-   2. SELECTION SORT — used for date-based sorting
-      Steps:
-        - Find min/max in unsorted portion
-        - Swap with first unsorted element
-        - Advance boundary
-      Complexity: O(n²)
-   ============================================================ */
 
 /**
  * Bubble Sort — sorts by numeric amount
@@ -863,19 +960,47 @@ function renderPaymentReport(expenses) {
 /* Chart helpers */
 function renderPieChart(labels, data, colors) {
     if (reportChartInstance) reportChartInstance.destroy();
-    const ctx = document.getElementById("reportMainChart").getContext("2d");
-    reportChartInstance = new Chart(ctx, {
+
+    // Corrected target to match the context variable below
+    const chartElement = document.getElementById("reportMainChart");
+    if (!chartElement) return; // Safety check in case the element isn't in the DOM
+
+    const ctx = chartElement.getContext("2d");
+
+    // Changed 'dashDoughnutChart' to 'reportMainChart'
+    reportChartInstance = new Chart(chartElement, {
         type: "doughnut",
-        data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: getComputedStyle(document.documentElement).getPropertyValue("--bg-card").trim() }] },
+        data: {
+            labels,
+            datasets: [{
+                data,
+                backgroundColor: colors,
+                borderWidth: 2,
+                borderColor: getComputedStyle(document.documentElement).getPropertyValue("--bg-card").trim()
+            }]
+        },
         options: {
-            responsive: true, maintainAspectRatio: true,
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: { position: "bottom", labels: { color: getComputedStyle(document.documentElement).getPropertyValue("--text-secondary").trim(), font: { family: "DM Sans", size: 12 }, padding: 14 } },
-                tooltip: { callbacks: { label: ctx => ` ${formatCurrency(ctx.raw)}` } }
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        color: getComputedStyle(document.documentElement).getPropertyValue("--text-secondary").trim(),
+                        font: { family: "DM Sans", size: 12 },
+                        padding: 14
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: context => ` ${formatCurrency(context.raw)}`
+                    }
+                }
             }
         }
     });
 }
+
 
 function renderBarChart(labels, data) {
     if (reportChartInstance) reportChartInstance.destroy();
@@ -1054,9 +1179,12 @@ function editCategory(id) {
     if (!cat) return;
     document.getElementById("catName").value = cat.name;
     document.getElementById("catIcon").value = cat.icon;
+    document.getElementById("emojiDisplayIcon").textContent = cat.icon;
     document.getElementById("catColor").value = cat.color;
     document.getElementById("catEditId").value = id;
     document.getElementById("catFormTitle").innerHTML = '<i class="bi bi-pencil me-2"></i>Edit Category';
+    // Scroll form into view
+    document.getElementById("catName").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function deleteCategory(id) {
@@ -1080,12 +1208,15 @@ function deleteCategory(id) {
 
 function cancelCatEdit() {
     document.getElementById("catName").value = "";
-    document.getElementById("catIcon").value = "";
+    document.getElementById("catIcon").value = "📦";
+    const disp = document.getElementById("emojiDisplayIcon");
+    if (disp) disp.textContent = "📦";
     document.getElementById("catColor").value = "#10b981";
     document.getElementById("catEditId").value = "";
     document.getElementById("catMsg").textContent = "";
     document.getElementById("catFormTitle").innerHTML = '<i class="bi bi-plus-circle me-2"></i>Add Category';
     clearFieldErrors(["catMsg"]);
+    closeEmojiPicker();
 }
 
 function renderCategoryList() {
